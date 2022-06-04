@@ -1,5 +1,5 @@
 const express = require("express");
-const { sendNewNotificationTo } = require("../utils/utilsFunctions");
+const { sendNewNotificationTo, sendNewNotificationToFCM } = require("../utils/utilsFunctions");
 
 const router = express.Router();
 
@@ -18,7 +18,7 @@ router.post("/send", async (req, res) => {
   .then(async () => {
     console.log("notification-sended-to -> ", receiver)
     res.json({
-      status: "notification-sended",
+      status: 'notification-sended',
       error: null
     })
   })

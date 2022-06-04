@@ -1,6 +1,8 @@
 const CryptoJS = require("crypto-js");
 const { twilioInstance } = require("../constants");
 const { userDataRef } = require("../services/Firebase/Firebase.firestore");
+const { messaging } = require("firebase-admin");
+const {isUuid} = require("uuidv4")
 
 const sendTwilioSms = ({ phoneNumber, body }) =>
   new Promise((response, reject) => {
@@ -24,8 +26,8 @@ const encryptationFunctions = (string, key, mode) => {
     return encriptation.toString();
   }
   if (mode == "decrypt") {
-    var result = CryptoJS.AES.decrypt(string, key);
-    return result.toString();
+    var result = CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(string, key)).toString();
+    return result
   }
 };
 
@@ -172,6 +174,22 @@ const sendNewNotificationTo = (
   });
 };
 
+const sendNewNotificationToFCM = (message) =>
+  new Promise((response, reject) => {
+    messaging()
+      .send({
+        token: process.env.FIREBASE_CLOUD_MESSAGING_TOKEN,
+        data: message
+      })
+      .then(() => {
+        console.log("notification-sended-fcm");
+        response(true);
+      })
+      .catch((error) => {
+        reject(error)
+      })
+  });
+
 const haversineDistance = (coords1, coords2, isMiles) => {
   function toRad(x) {
     return (x * Math.PI) / 180;
@@ -200,6 +218,7 @@ const haversineDistance = (coords1, coords2, isMiles) => {
 
   if (isMiles) d /= 1.60934;
 
+  if(lon1 == null || lat1 == null || lon2 == null || lat2 == null) return null 
   return d;
 };
 
@@ -219,6 +238,18 @@ const getDateFromTimestamp = (timestamp) => {
   };
 };
 
+
+const validateRequestToken = (token) => {
+  let tokenTimestamp = parseInt(token?.substring(token.indexOf(':')+1, token.length))
+  let tokenPattern = token?.substring(0, token.indexOf(':'));
+  
+  if(isUuid(tokenPattern) && tokenTimestamp > new Date().getTime() - 180000){
+    return true
+  }
+  
+  return false
+}
+
 module.exports = {
   RANDOMID,
   encryptationFunctions,
@@ -226,4 +257,6 @@ module.exports = {
   sendNewNotificationTo,
   haversineDistance,
   getDateFromTimestamp,
+  sendNewNotificationToFCM,
+  validateRequestToken
 };

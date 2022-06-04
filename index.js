@@ -35,9 +35,10 @@ const executeServer = async () => {
   // routes
   app.use("/api/otp-sending", require("./routes/sms-otp.sending"));
   app.use("/api/send-notification", require("./routes/notifications.sending"));
+  app.use("/api/request-balances", require("./routes/user.balances"));
 
   // DATABASE
-  // connectingDB();
+  connectingDB();
 
   // using Listeners
   require("./services/Listeners/listeners.index")();

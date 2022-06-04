@@ -1,24 +1,33 @@
-const { gql } = require("apollo-server-express")
+const { gql } = require("apollo-server-express");
 
 const typeDefs = gql`
+    # INPUTS 
+    input UserBalanceInput { 
+        owner: String!
+        encrypted: String!
+    }
+
+    input UpdateUserBalanceInput {
+        owner: String!
+        encrypted: String!
+    }
+
+    # TYPES 
     type UserBalances {
         id: ID
         owner: String
         encrypted: String
-        key: String
     }
 
     type Query {
-        userBalance: UserBalances
+        userBalance(owner: String!): UserBalances!,
+        allUserBalances: [UserBalances]!
     }
 
     type Mutation {
-        createUserBalance(
-            owner: String!
-            encrypted: String!
-            key: String!
-        ): UserBalances
+        createUserBalance(thisBalance: UserBalanceInput): UserBalances,
+        updateUserBalance(thisBalance: UpdateUserBalanceInput): UserBalances
     }
-`
+`;
 
-module.exports = {typeDefs}
+module.exports = { typeDefs };
