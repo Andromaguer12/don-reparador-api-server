@@ -18,20 +18,27 @@ router.get('/:id', async (req, res) => {
             if (isUuid(key)) {
                 userDataRef.doc(owner).get().then((doc) => {
                     if (doc.data()?.uuidKey === key) {
-                        const decrypted = JSON.parse(encryptationFunctions(
-                            query.encrypted,
-                            key,
-                            "decrypt"
-                        ));
-                        res.json({
-                            status: `requested-balance-for-${owner}`,
-                            data: decrypted[0],
-                            details: {
-                                tokenValidation: `token-approved-${owner}`,
-                                timestamp: `${getDateFromTimestamp(new Date().getTime()).date}|${getDateFromTimestamp(new Date().getTime()).hour}`
-                            },
-                            error: null
-                        })
+                        try {
+                            const decrypted = JSON.parse(encryptationFunctions(
+                                query.encrypted,
+                                key,
+                                "decrypt"
+                            ));
+                            res.json({
+                                status: `requested-balance-for-${owner}`,
+                                data: decrypted[0],
+                                details: {
+                                    tokenValidation: `token-approved-${owner}`,
+                                    timestamp: `${getDateFromTimestamp(new Date().getTime()).date}|${getDateFromTimestamp(new Date().getTime()).hour}`
+                                },
+                                error: null
+                            })
+                        } catch (error) {
+                            res.json({
+                                status: `invalid decryptation key`,
+                                error: 'the key provided from client cannot decrypt data for this request'
+                            })
+                        }
                     }
                     else {
                         res.json({
@@ -71,57 +78,72 @@ router.post('/taking-order/:id', async (req, res) => {
         const query = await BalanceModel.findOne({ owner })
         if (query) {
             if (isUuid(key)) {
-                const balanceDecrypted = JSON.parse(encryptationFunctions(
-                    query.encrypted,
-                    key,
-                    "decrypt"
-                ))
+                try {
+                    const balanceDecrypted = JSON.parse(encryptationFunctions(
+                        query.encrypted,
+                        key,
+                        "decrypt"
+                    ))
 
-                // new balance after take order
+                    if (balanceDecrypted[0].current_balance - 5 < 0) {
+                        res.json({
+                            status: `insufficient-funds`,
+                            error: 'the current user balance is insufficient for perform this request'
+                        })
+                    }
+                    else {
+                        // new balance after take order
 
-                let thisUserBalance = {
-                    ...balanceDecrypted[0],
-                    lastModification: new Date().getTime(),
-                    current_balance: (balanceDecrypted[0].current_balance - 5)
-                }
-
-                let encryptedNewBalance = encryptationFunctions(
-                    JSON.stringify([thisUserBalance]),
-                    key,
-                    "encrypt"
-                )
-
-                await BalanceModel.findOneAndUpdate({ owner }, { encrypted: encryptedNewBalance }).then((object) => {
-                    let token = `${uuid()}:${new Date().getTime()}`
-                    axios.post(
-                        process.env.CURRENT_DOMAIN + '/api/request-balances/verify-user-balance-created/' + owner,
-                        {
-                            token,
-                            key
+                        let thisUserBalance = {
+                            ...balanceDecrypted[0],
+                            lastModification: new Date().getTime(),
+                            current_balance: (balanceDecrypted[0].current_balance - 5)
                         }
-                    ).then((xres) => {
-                        const { data } = xres.data
-                        res.json({
-                            status: `updated-balance-for-${owner}-removed-5PEN`,
-                            data,
-                            details: {
-                                tokenValidation: `token-approved-${owner}`,
-                                timestamp: `${getDateFromTimestamp(new Date().getTime()).date}|${getDateFromTimestamp(new Date().getTime()).hour}`
-                            },
-                            error: null
+
+                        let encryptedNewBalance = encryptationFunctions(
+                            JSON.stringify([thisUserBalance]),
+                            key,
+                            "encrypt"
+                        )
+
+                        await BalanceModel.findOneAndUpdate({ owner }, { encrypted: encryptedNewBalance }).then((object) => {
+                            let token = `${uuid()}:${new Date().getTime()}`
+                            axios.post(
+                                process.env.CURRENT_DOMAIN + '/api/request-balances/verify-user-balance-created/' + owner,
+                                {
+                                    token,
+                                    key
+                                }
+                            ).then((xres) => {
+                                const { data } = xres.data
+                                res.json({
+                                    status: `updated-balance-for-${owner}-removed-5PEN`,
+                                    data,
+                                    details: {
+                                        tokenValidation: `token-approved-${owner}`,
+                                        timestamp: `${getDateFromTimestamp(new Date().getTime()).date}|${getDateFromTimestamp(new Date().getTime()).hour}`
+                                    },
+                                    error: null
+                                })
+                            }).catch((error) => {
+                                res.json({
+                                    status: `There was an error getting again the balance`,
+                                    error
+                                })
+                            })
+                        }).catch((error) => {
+                            res.json({
+                                status: `There was an error`,
+                                error
+                            })
                         })
-                    }).catch((error) => {
-                        res.json({
-                            status: `There was an error getting again the balance`,
-                            error
-                        })
-                    })
-                }).catch((error) => {
+                    }
+                } catch (error) {
                     res.json({
-                        status: `There was an error`,
-                        error
+                        status: `invalid decryptation key`,
+                        error: 'the key provided from client cannot decrypt data for this request'
                     })
-                })
+                }
             }
             else {
                 res.json({
@@ -226,20 +248,27 @@ router.post('/verify-user-balance-created/:id', async (req, res) => {
             if (isUuid(key)) {
                 userDataRef.doc(owner).get().then((doc) => {
                     if (doc.data()?.uuidKey === key) {
-                        const decrypted = JSON.parse(encryptationFunctions(
-                            query.encrypted,
-                            key,
-                            "decrypt"
-                        ))
-                        res.json({
-                            status: `requested-balance-for-${owner}`,
-                            data: decrypted[0],
-                            details: {
-                                tokenValidation: `token-approved-${owner}`,
-                                timestamp: `${getDateFromTimestamp(new Date().getTime()).date}|${getDateFromTimestamp(new Date().getTime()).hour}`
-                            },
-                            error: null
-                        })
+                        try {
+                            const decrypted = JSON.parse(encryptationFunctions(
+                                query.encrypted,
+                                key,
+                                "decrypt"
+                            ))
+                            res.json({
+                                status: `requested-balance-for-${owner}`,
+                                data: decrypted[0],
+                                details: {
+                                    tokenValidation: `token-approved-${owner}`,
+                                    timestamp: `${getDateFromTimestamp(new Date().getTime()).date}|${getDateFromTimestamp(new Date().getTime()).hour}`
+                                },
+                                error: null
+                            })
+                        } catch (error) {
+                            res.json({
+                                status: `invalid decryptation key`,
+                                error: 'the key provided from client cannot decrypt data for this request'
+                            })
+                        }
                     }
                     else {
                         res.json({
@@ -307,12 +336,12 @@ router.delete('/delete-balance/:id', async (req, res) => {
     const { token, key } = req.body;
     const owner = req.params.id;
 
-    // await BalanceModel.findOneAndDelete({ owner }).exec().then(() => {
-    //     res.json({
-    //         status: "deleted -> " + owner,
-    //         error: null
-    //     })
-    // })
+    await BalanceModel.findOneAndDelete({ owner }).exec().then(() => {
+        res.json({
+            status: "deleted -> " + owner,
+            error: null
+        })
+    })
 
 })
 
