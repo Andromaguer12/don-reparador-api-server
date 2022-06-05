@@ -18,14 +18,14 @@ router.get('/:id', async (req, res) => {
             if (isUuid(key)) {
                 userDataRef.doc(owner).get().then((doc) => {
                     if (doc.data()?.uuidKey === key) {
-                        const decrypted = encryptationFunctions(
+                        const decrypted = JSON.parse(encryptationFunctions(
                             query.encrypted,
                             key,
                             "decrypt"
-                        );
+                        ));
                         res.json({
                             status: `requested-balance-for-${owner}`,
-                            data: JSON.parse(decrypted)[0],
+                            data: decrypted[0],
                             details: {
                                 tokenValidation: `token-approved-${owner}`,
                                 timestamp: `${getDateFromTimestamp(new Date().getTime()).date}|${getDateFromTimestamp(new Date().getTime()).hour}`
@@ -75,14 +75,14 @@ router.post('/taking-order/:id', async (req, res) => {
                     query.encrypted,
                     key,
                     "decrypt"
-                ))[0];
+                ))
 
                 // new balance after take order
 
                 let thisUserBalance = {
-                    ...balanceDecrypted,
+                    ...balanceDecrypted[0],
                     lastModification: new Date().getTime(),
-                    current_balance: (balanceDecrypted.current_balance - 5)
+                    current_balance: (balanceDecrypted[0].current_balance - 5)
                 }
 
                 let encryptedNewBalance = encryptationFunctions(
@@ -148,17 +148,10 @@ router.post('/change-specific-amount/:id', async (req, res) => {
         if (query) {
             if (isUuid(key)) {
                 try {
-                    const balanceDecrypted = JSON.parse(encryptationFunctions(
-                        query.encrypted,
-                        key,
-                        "decrypt"
-                    ))[0];
-                    // new balance after take order
-
                     let thisUserBalance = {
-                        ...balanceDecrypted,
                         lastModification: new Date().getTime(),
-                        current_balance: changeAmount
+                        current_balance: changeAmount,
+                        owner
                     }
 
                     let encryptedNewBalance = encryptationFunctions(
@@ -233,14 +226,14 @@ router.post('/verify-user-balance-created/:id', async (req, res) => {
             if (isUuid(key)) {
                 userDataRef.doc(owner).get().then((doc) => {
                     if (doc.data()?.uuidKey === key) {
-                        const decrypted = encryptationFunctions(
+                        const decrypted = JSON.parse(encryptationFunctions(
                             query.encrypted,
                             key,
                             "decrypt"
-                        );
+                        ))
                         res.json({
                             status: `requested-balance-for-${owner}`,
-                            data: JSON.parse(decrypted)[0],
+                            data: decrypted[0],
                             details: {
                                 tokenValidation: `token-approved-${owner}`,
                                 timestamp: `${getDateFromTimestamp(new Date().getTime()).date}|${getDateFromTimestamp(new Date().getTime()).hour}`
@@ -314,12 +307,12 @@ router.delete('/delete-balance/:id', async (req, res) => {
     const { token, key } = req.body;
     const owner = req.params.id;
 
-    await BalanceModel.findOneAndDelete({ owner }).exec().then(() => {
-        res.json({
-            status: "deleted -> " + owner,
-            error: null
-        })
-    })
+    // await BalanceModel.findOneAndDelete({ owner }).exec().then(() => {
+    //     res.json({
+    //         status: "deleted -> " + owner,
+    //         error: null
+    //     })
+    // })
 
 })
 
