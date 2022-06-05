@@ -26,7 +26,7 @@ const executeServer = async () => {
   require("dotenv").config();
   app.use(
     cors({
-      origin: ["http://localhost:3000", 'https://donreparador.pe'],
+      origin: ["http://localhost:3000", "http://localhost:8081", 'https://donreparador.pe'],
       methods: ["GET", "POST"],
     })
   );

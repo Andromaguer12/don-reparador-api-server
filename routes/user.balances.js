@@ -172,7 +172,7 @@ router.post('/change-specific-amount/:id', async (req, res) => {
                 try {
                     let thisUserBalance = {
                         lastModification: new Date().getTime(),
-                        current_balance: changeAmount,
+                        current_balance: parseInt(changeAmount),
                         owner
                     }
 
