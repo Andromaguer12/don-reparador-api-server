@@ -333,16 +333,15 @@ router.post('/verify-user-balance-created/:id', async (req, res) => {
 
 
 router.delete('/delete-balance/:id', async (req, res) => {
-    const { token, key } = req.body;
-    const owner = req.params.id;
+    // const { token, key } = req.body;
+    // const owner = req.params.id;
 
-    await BalanceModel.findOneAndDelete({ owner }).exec().then(() => {
-        res.json({
-            status: "deleted -> " + owner,
-            error: null
-        })
-    })
-
+    // await BalanceModel.findOneAndDelete({ owner }).exec().then(() => {
+    //     res.json({
+    //         status: "deleted -> " + owner,
+    //         error: null
+    //     })
+    // })
 })
 
 module.exports = router;
