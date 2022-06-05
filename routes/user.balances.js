@@ -340,7 +340,7 @@ router.delete('/delete-balance/:id', async (req, res) => {
         const query = await BalanceModel.findOne({ owner });
         if (query) {
             if (isUuid(key)) {
-                userDataRef.doc(owner).get().then((doc) => {
+                userDataRef.doc(owner).get().then(async (doc) => {
                     if (doc.data()?.uuidKey === key) {
                         await BalanceModel.findOneAndDelete({ owner }).exec().then(() => {
                             res.json({
