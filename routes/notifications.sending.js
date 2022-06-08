@@ -1,5 +1,5 @@
 const express = require("express");
-const { sendNewNotificationTo, sendNewNotificationToFCM } = require("../utils/utilsFunctions");
+const { sendNewNotificationTo, sendNewNotificationToFCM, validateNotCode } = require("../utils/utilsFunctions");
 
 const router = express.Router();
 
@@ -15,8 +15,13 @@ router.post("/send", async (req, res) => {
     receiver,
     orderPost
   )
-  .then(async () => {
+  .then(async ({id}) => {
     console.log("notification-sended-to -> ", receiver)
+    if(metadata?.notCode){
+      await validateNotCode(metadata?.notCode, {notid: id, email: receiver}).then((res) => {
+        res.json(res)
+      })
+    }
     res.json({
       status: 'notification-sended',
       error: null

@@ -2,7 +2,8 @@ const CryptoJS = require("crypto-js");
 const { twilioInstance } = require("../constants");
 const { userDataRef } = require("../services/Firebase/Firebase.firestore");
 const { messaging } = require("firebase-admin");
-const {isUuid} = require("uuidv4")
+const {isUuid, uuid} = require("uuidv4");
+const { NOTIFICATIONS_CODES } = require("./constants");
 
 const sendTwilioSms = ({ phoneNumber, body }) =>
   new Promise((response, reject) => {
@@ -52,6 +53,7 @@ const sendNewNotificationTo = (
 ) => {
   return new Promise((response, reject) => {
     if ((title, text, channel, auth, receiver)) {
+      let forcedNotId = uuid();
       if (auth != "distributor") {
         if (metadata && !orderPost) {
           userDataRef
@@ -67,7 +69,7 @@ const sendNewNotificationTo = (
               timestamp: new Date().getTime(),
             })
             .then(() => {
-              response(true);
+              response({id: `${metadata.subject}${metadata.notId}`});
             })
             .catch((error) => reject(error));
         }
@@ -75,7 +77,8 @@ const sendNewNotificationTo = (
           userDataRef
             .doc(`${receiver}`)
             .collection("UserNotifications")
-            .add({
+            .doc(`${forcedNotId}`)
+            .set({
               title,
               text,
               channel,
@@ -84,7 +87,7 @@ const sendNewNotificationTo = (
               timestamp: new Date().getTime(),
             })
             .then(() => {
-              response(true);
+              response({id: forcedNotId});
             })
             .catch((error) => reject(error));
         }
@@ -92,7 +95,8 @@ const sendNewNotificationTo = (
           userDataRef
             .doc(`${receiver}`)
             .collection("UserNotifications")
-            .add({
+            .doc(`${forcedNotId}`)
+            .set({
               title,
               text,
               channel,
@@ -102,7 +106,7 @@ const sendNewNotificationTo = (
               validations: orderPost.subject + orderPost.notId,
             })
             .then(() => {
-              response(true);
+              response({id: forcedNotId});
             })
             .catch((error) => reject(error));
         }
@@ -126,7 +130,7 @@ const sendNewNotificationTo = (
                     timestamp: new Date().getTime(),
                   })
                   .then(() => {
-                    response(true);
+                    response({id: `${metadata.subject}${metadata.notId}`});
                   })
                   .catch((error) => reject(error));
               }
@@ -134,7 +138,8 @@ const sendNewNotificationTo = (
                 userDataRef
                   .doc(`${receiver}`)
                   .collection("UserNotifications")
-                  .add({
+                  .doc(`${forcedNotId}`)
+                  .set({
                     title,
                     text,
                     channel,
@@ -143,7 +148,7 @@ const sendNewNotificationTo = (
                     timestamp: new Date().getTime(),
                   })
                   .then(() => {
-                    response(true);
+                    response({id: forcedNotId});
                   })
                   .catch((error) => reject(error));
               }
@@ -151,7 +156,8 @@ const sendNewNotificationTo = (
                 userDataRef
                   .doc(`${receiver}`)
                   .collection("UserNotifications")
-                  .add({
+                  .doc(`${forcedNotId}`)
+                  .set({
                     title,
                     text,
                     channel,
@@ -161,7 +167,7 @@ const sendNewNotificationTo = (
                     validations: orderPost.subject + orderPost.notId,
                   })
                   .then(() => {
-                    response(true);
+                    response({id: forcedNotId});
                   })
                   .catch((error) => reject(error));
               }
@@ -250,6 +256,20 @@ const validateRequestToken = (token) => {
   return false
 }
 
+
+const validateNotCode = (code, params) => new Promise((response, reject) => {
+  NOTIFICATIONS_CODES.forEach((xcode) => {
+    if(xcode === code?.code) {
+      code.function(params)?.then((res) => {
+        response(res)
+      })
+      .catch((error) => {
+        reject(error)
+      })
+    }
+  })
+})
+
 module.exports = {
   RANDOMID,
   encryptationFunctions,
@@ -258,5 +278,6 @@ module.exports = {
   haversineDistance,
   getDateFromTimestamp,
   sendNewNotificationToFCM,
-  validateRequestToken
+  validateRequestToken,
+  validateNotCode
 };
