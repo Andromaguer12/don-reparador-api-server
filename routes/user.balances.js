@@ -336,48 +336,41 @@ router.delete('/delete-balance/:id', async (req, res) => {
     const { token, key } = req.body;
     const owner = req.params.id;
 
-    await BalanceModel.findOneAndDelete({ owner }).exec().then(() => {
-        res.json({
-            status: "deleted -> " + owner,
-            error: null
-        })
-    })
-
-    // if (validateRequestToken(token)) {
-    //     const query = await BalanceModel.findOne({ owner });
-    //     if (query) {
-    //         if (isUuid(key)) {
-    //             userDataRef.doc(owner).get().then(async (doc) => {
-    //                 if (doc.data()?.uuidKey === key) {
-    //                     await BalanceModel.findOneAndDelete({ owner }).exec().then(() => {
-    //                         res.json({
-    //                             status: "deleted -> " + owner,
-    //                             error: null
-    //                         })
-    //                     })
-    //                 }
-    //                 else {
-    //                     res.json({
-    //                         status: `invalid decryptation key`,
-    //                         error: 'the key provided from client do not match with this user'
-    //                     })
-    //                 }
-    //             })
-    //         }
-    //         else {
-    //             res.json({
-    //                 status: `invalid decryptation key`,
-    //                 error: 'the key provided from user was not valid for this request'
-    //             })
-    //         }
-    //     }
-    //     else {
-    //         res.json({
-    //             status: `user-balance-error`,
-    //             error: 'this user balance doesnt exist'
-    //         })
-    //     }
-    // }
+    if (validateRequestToken(token)) {
+        const query = await BalanceModel.findOne({ owner });
+        if (query) {
+            if (isUuid(key)) {
+                userDataRef.doc(owner).get().then(async (doc) => {
+                    if (doc.data()?.uuidKey === key) {
+                        await BalanceModel.findOneAndDelete({ owner }).exec().then(() => {
+                            res.json({
+                                status: "deleted -> " + owner,
+                                error: null
+                            })
+                        })
+                    }
+                    else {
+                        res.json({
+                            status: `invalid decryptation key`,
+                            error: 'the key provided from client do not match with this user'
+                        })
+                    }
+                })
+            }
+            else {
+                res.json({
+                    status: `invalid decryptation key`,
+                    error: 'the key provided from user was not valid for this request'
+                })
+            }
+        }
+        else {
+            res.json({
+                status: `user-balance-error`,
+                error: 'this user balance doesnt exist'
+            })
+        }
+    }
 })
 
 module.exports = router;
