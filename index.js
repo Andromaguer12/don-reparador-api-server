@@ -46,8 +46,7 @@ const executeServer = async () => {
 
   app.listen(process.env.PORT || 8080, () => {
     console.log(
-      `server initialized in port ${process.env.PORT || 8080}, and graphql ${
-        server.graphqlPath
+      `server initialized in port ${process.env.PORT || 8080}, and graphql ${server.graphqlPath
       }`
     );
   });

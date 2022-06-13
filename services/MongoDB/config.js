@@ -1,8 +1,9 @@
 const mongoose = require('mongoose')
+const app = require('express')();
 
 const connectingDB = async () => {
-    try{
-        await mongoose.connect(process.env.MONGO_DB_URL, {
+    try {
+        await mongoose.connect(app.get('env') === 'development' ? process.env.MONGO_DB_URL_DEV : process.env.MONGO_DB_URL, {
             useNewUrlParser: true,
             useUnifiedTopology: true
         }).then(() => {
@@ -14,4 +15,4 @@ const connectingDB = async () => {
     }
 }
 
-module.exports = {connectingDB}
+module.exports = { connectingDB }
