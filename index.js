@@ -20,7 +20,8 @@ const executeServer = async () => {
   await server.start();
 
   // applying middlewares
-  server.applyMiddleware({ app, path: "/apollo-server" });
+  app.use(cors())
+  // server.applyMiddleware({ app, path: "/apollo-server" });
 
   // express settings
   require("dotenv").config();
