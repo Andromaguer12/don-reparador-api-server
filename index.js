@@ -37,12 +37,16 @@ const executeServer = async () => {
   app.use("/api/otp-sending", require("./routes/sms-otp.sending"));
   app.use("/api/send-notification", require("./routes/notifications.sending"));
   app.use("/api/request-balances", require("./routes/user.balances"));
+  app.use("/api/orders-actions", require("./routes/orders.actions"));
 
   // DATABASE
   connectingDB();
 
   // using Listeners
   require("./services/Listeners/listeners.index")();
+
+  // using schedule functions
+  require("./services/scheduleFunctions/schedule.functions")();
 
 
   app.listen(process.env.PORT || 8080, () => {
