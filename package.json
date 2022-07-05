@@ -1,6 +1,6 @@
 {
   "name": "don-reparador-api-server",
-  "version": "1.0",
+  "version": "1.0.0",
   "description": "monetary api server for financial purposes",
   "main": "index.js",
   "scripts": {
