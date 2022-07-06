@@ -1,0 +1,38 @@
+{
+  "name": "don-reparador-api-server",
+  "version": "1.0.0",
+  "description": "monetary api server for financial purposes",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev-init": "nodemon index.js",
+    "start": "node index.js"
+  },
+  "keywords": [
+    "don-reparador",
+    "server",
+    "payments",
+    "money"
+  ],
+  "author": "Andres Carrasquero",
+  "license": "ISC",
+  "dependencies": {
+    "apollo-server-express": "^3.6.7",
+    "axios": "^0.26.1",
+    "cors": "^2.8.5",
+    "crypto-js": "^4.1.1",
+    "dotenv": "^16.0.0",
+    "express": "^4.17.3",
+    "firebase-admin": "^10.2.0",
+    "graphql": "^16.4.0",
+    "mongoose": "^6.3.1",
+    "node-schedule": "^2.1.0",
+    "socket.io": "^4.4.1",
+    "stripe": "^8.217.0",
+    "twilio": "^3.76.1",
+    "uuidv4": "^6.2.13"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}
