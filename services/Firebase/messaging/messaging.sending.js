@@ -8,7 +8,7 @@ const sendToSpecificUser = (userToSend, messageBody) => new Promise((response, r
     .then((doc) => {
       const owner = doc.data();
 
-      if (Array.isArray(owner.currentDevice)) {
+      if (Array.isArray(owner.currentDevice) && owner.currentDevice.length > 0) {
         admin.messaging().sendToDevice(
           owner.currentDevice,
           {
