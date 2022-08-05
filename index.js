@@ -51,13 +51,6 @@ const executeServer = async () => {
   app.use(require("express").json());
 
   // routes
-  app.use("/", (req, res) => {
-    res.json({
-      message: "welcome to, don-reparador-api-server",
-      error: null,
-      statusCode: 200
-    })
-  });
   app.use("/api/otp-sending", require("./routes/sms-otp.sending"));
   app.use("/api/send-notification", require("./routes/notifications.sending"));
   app.use("/api/request-balances", require("./routes/user.balances"));
