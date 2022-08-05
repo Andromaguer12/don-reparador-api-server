@@ -8,6 +8,23 @@ const { connectingDB } = require("./services/MongoDB/config");
 const {
   initializeFirebaseService,
 } = require("./services/Firebase/Firebase.config");
+const { default: axios } = require("axios");
+
+const startKeepAlive = () => {
+  setInterval(() => {
+    axios.get(
+      require('express')().get('env') === 'development'
+        ? process.env.CURRENT_DOMAIN_DEV
+        : process.env.CURRENT_DOMAIN
+    )
+      .then((res) => {
+        console.log("preventing-idling->", res.data);
+      })
+      .catch((err) => {
+        console.log("error-preventing-idling", err)
+      })
+  }, 20 * 60 * 1000);
+}
 
 // connect apollo server
 const executeServer = async () => {
@@ -34,6 +51,13 @@ const executeServer = async () => {
   app.use(require("express").json());
 
   // routes
+  app.use("/", (req, res) => {
+    res.json({
+      message: "welcome to, don-reparador-api-server",
+      error: null,
+      statusCode: 200
+    })
+  });
   app.use("/api/otp-sending", require("./routes/sms-otp.sending"));
   app.use("/api/send-notification", require("./routes/notifications.sending"));
   app.use("/api/request-balances", require("./routes/user.balances"));
@@ -50,6 +74,7 @@ const executeServer = async () => {
 
 
   app.listen(process.env.PORT || 8080, () => {
+    startKeepAlive();
     console.log(
       `server initialized in port ${process.env.PORT || 8080}, and graphql ${server.graphqlPath
       }`
