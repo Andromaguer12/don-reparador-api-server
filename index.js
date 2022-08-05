@@ -9,6 +9,22 @@ const {
   initializeFirebaseService,
 } = require("./services/Firebase/Firebase.config");
 
+const startKeepAlive = () => {
+  setInterval(() => {
+    axios.get(
+      require('express')().get('env') === 'development'
+        ? process.env.CURRENT_DOMAIN_DEV + '/api/server/prevent-server-idling'
+        : process.env.CURRENT_DOMAIN + '/api/server/prevent-server-idling'
+    )
+      .then((res) => {
+        console.log("preventing-idling->", res.data);
+      })
+      .catch((err) => {
+        console.log("error-preventing-idling", err)
+      })
+  }, 20 * 60 * 1000);
+}
+
 // connect apollo server
 const executeServer = async () => {
   const app = express();
@@ -38,6 +54,7 @@ const executeServer = async () => {
   app.use("/api/send-notification", require("./routes/notifications.sending"));
   app.use("/api/request-balances", require("./routes/user.balances"));
   app.use("/api/orders-actions", require("./routes/orders.actions"));
+  app.use("/api/server", require("./routes/prevent.idling"));
 
   // DATABASE
   connectingDB();
@@ -50,6 +67,7 @@ const executeServer = async () => {
 
 
   app.listen(process.env.PORT || 8080, () => {
+    startKeepAlive();
     console.log(
       `server initialized in port ${process.env.PORT || 8080}, and graphql ${server.graphqlPath
       }`

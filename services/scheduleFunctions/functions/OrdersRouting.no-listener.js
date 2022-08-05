@@ -58,7 +58,7 @@ const placeOrdersRouting = () => {
                             },
                           }
                         ).then(() => {
-                          console.log('reminder-notification-sended to -> ' + user.id)
+                          console.log('reminder-notification-sended-no-listener to -> ' + user.id)
                         })
                       }
                     }
