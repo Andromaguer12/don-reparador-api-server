@@ -8,6 +8,7 @@ const { connectingDB } = require("./services/MongoDB/config");
 const {
   initializeFirebaseService,
 } = require("./services/Firebase/Firebase.config");
+const { default: axios } = require("axios");
 
 const startKeepAlive = () => {
   setInterval(() => {
