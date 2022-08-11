@@ -18,7 +18,7 @@ const startKeepAlive = () => {
         : process.env.CURRENT_DOMAIN + '/api/server/prevent-server-idling'
     )
       .then((res) => {
-        console.log("preventing-idling->", res.data);
+        // console.log("preventing-idling->", res.data);
       })
       .catch((err) => {
         console.log("error-preventing-idling", err)

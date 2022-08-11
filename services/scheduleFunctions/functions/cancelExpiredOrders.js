@@ -2,6 +2,7 @@ const { userDataRef } = require("../../Firebase/Firebase.firestore")
 
 const cancelExpiredOrders = async () => {
   const users = [];
+  console.log("looking-for-expired-orders...");
   await userDataRef.get().then((docs) => {
     docs.forEach((doc) => {
       users.push(doc.id);
@@ -41,6 +42,7 @@ const cancelExpiredOrders = async () => {
       })
 
       Promise.all(promises).then((values) => {
+        console.log("some-orders-has-been-updated-to-cancelled...");
       })
     }
   })
