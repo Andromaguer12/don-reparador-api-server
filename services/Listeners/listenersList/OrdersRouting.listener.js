@@ -8,9 +8,7 @@ const placeOrdersRoutingListener = () => {
     .onSnapshot((docs) => {
       docs.forEach((doc) => {
         userDataRef
-          .where("membership", "==", "premium")
           .where("auth", "==", "distributor")
-          .where("online", "==", true)
           .get()
           .then((users) => {
 
