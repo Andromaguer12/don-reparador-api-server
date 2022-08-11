@@ -11,6 +11,7 @@ const placeOrdersRouting = () => {
       docs.forEach((doc) => {
         userDataRef
           .where("auth", "==", "distributor")
+          .where("online", "==", true)
           .get()
           .then((users) => {
 
