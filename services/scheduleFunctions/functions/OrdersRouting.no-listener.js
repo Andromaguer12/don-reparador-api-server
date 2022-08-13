@@ -7,9 +7,9 @@ const placeOrdersRouting = () => {
     .where("timestamp", ">=", new Date().getTime() - 259200000)
     .get()
     .then((docs) => {
+      console.log("evaluating-orders-for-send-notification");
       docs.forEach((doc) => {
         userDataRef
-          .where("membership", "==", "premium")
           .where("auth", "==", "distributor")
           .where("online", "==", true)
           .get()
@@ -17,18 +17,18 @@ const placeOrdersRouting = () => {
 
             users.forEach((user) => {
               // filtering nearly users
-              const { location } = doc.data();
-              const { locationData } = user.data();
+              const { location } = doc.data(); // order
+              const { locationData } = user.data(); // user location
 
               let currentOrderLocation = [location.coords?.longitude, location.coords?.latitude];
               let currentUserLocation = [locationData.coordinates?.longitude || null, locationData.coordinates?.latitude || null];
               const distancesComparations = haversineDistance(
-                currentOrderLocation,
                 currentUserLocation,
+                currentOrderLocation,
                 false
               ) * 1000
 
-              if (user.data().position.includes(doc.data().category) && distancesComparations !== 0 && distancesComparations < 7000) {
+              if (user.data().position.includes(doc.data().category) && distancesComparations !== 0 && distancesComparations <= 7000) {
                 userDataRef
                   .doc(user.id)
                   .collection("UserNotifications")
@@ -58,7 +58,7 @@ const placeOrdersRouting = () => {
                             },
                           }
                         ).then(() => {
-                          console.log('reminder-notification-sended to -> ' + user.id)
+                          console.log('reminder-notification-sended-no-listener to -> ' + user.id)
                         })
                       }
                     }

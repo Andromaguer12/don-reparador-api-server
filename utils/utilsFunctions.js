@@ -2,8 +2,9 @@ const CryptoJS = require("crypto-js");
 const { twilioInstance } = require("../constants");
 const { userDataRef } = require("../services/Firebase/Firebase.firestore");
 const { messaging } = require("firebase-admin");
-const {isUuid, uuid} = require("uuidv4");
+const { isUuid, uuid } = require("uuidv4");
 const { NOTIFICATIONS_CODES } = require("./constants");
+const { sendToSpecificUser } = require("../services/Firebase/messaging/messaging.sending");
 
 const sendTwilioSms = ({ phoneNumber, body }) =>
   new Promise((response, reject) => {
@@ -68,8 +69,15 @@ const sendNewNotificationTo = (
               auth,
               timestamp: new Date().getTime(),
             })
-            .then(() => {
-              response({id: `${metadata.subject}${metadata.notId}`});
+            .then(async () => {
+              await sendToSpecificUser(
+                receiver,
+                {
+                  title,
+                  text
+                }
+              )
+              response({ id: `${metadata.subject}${metadata.notId}` });
             })
             .catch((error) => reject(error));
         }
@@ -86,8 +94,15 @@ const sendNewNotificationTo = (
               auth,
               timestamp: new Date().getTime(),
             })
-            .then(() => {
-              response({id: forcedNotId});
+            .then(async () => {
+              await sendToSpecificUser(
+                receiver,
+                {
+                  title,
+                  text
+                }
+              )
+              response({ id: forcedNotId });
             })
             .catch((error) => reject(error));
         }
@@ -105,8 +120,15 @@ const sendNewNotificationTo = (
               timestamp: new Date().getTime(),
               validations: orderPost.subject + orderPost.notId,
             })
-            .then(() => {
-              response({id: forcedNotId});
+            .then(async () => {
+              await sendToSpecificUser(
+                receiver,
+                {
+                  title,
+                  text
+                }
+              )
+              response({ id: forcedNotId });
             })
             .catch((error) => reject(error));
         }
@@ -129,8 +151,15 @@ const sendNewNotificationTo = (
                     auth,
                     timestamp: new Date().getTime(),
                   })
-                  .then(() => {
-                    response({id: `${metadata.subject}${metadata.notId}`});
+                  .then(async () => {
+                    await sendToSpecificUser(
+                      receiver,
+                      {
+                        title,
+                        text
+                      }
+                    )
+                    response({ id: `${metadata.subject}${metadata.notId}` });
                   })
                   .catch((error) => reject(error));
               }
@@ -147,8 +176,15 @@ const sendNewNotificationTo = (
                     auth,
                     timestamp: new Date().getTime(),
                   })
-                  .then(() => {
-                    response({id: forcedNotId});
+                  .then(async () => {
+                    await sendToSpecificUser(
+                      receiver,
+                      {
+                        title,
+                        text
+                      }
+                    )
+                    response({ id: forcedNotId });
                   })
                   .catch((error) => reject(error));
               }
@@ -166,8 +202,15 @@ const sendNewNotificationTo = (
                     timestamp: new Date().getTime(),
                     validations: orderPost.subject + orderPost.notId,
                   })
-                  .then(() => {
-                    response({id: forcedNotId});
+                  .then(async () => {
+                    await sendToSpecificUser(
+                      receiver,
+                      {
+                        title,
+                        text
+                      }
+                    )
+                    response({ id: forcedNotId });
                   })
                   .catch((error) => reject(error));
               }
@@ -179,22 +222,6 @@ const sendNewNotificationTo = (
     }
   });
 };
-
-const sendNewNotificationToFCM = (message) =>
-  new Promise((response, reject) => {
-    messaging()
-      .send({
-        token: process.env.FIREBASE_CLOUD_MESSAGING_TOKEN,
-        data: message
-      })
-      .then(() => {
-        console.log("notification-sended-fcm");
-        response(true);
-      })
-      .catch((error) => {
-        reject(error)
-      })
-  });
 
 const haversineDistance = (coords1, coords2, isMiles) => {
   function toRad(x) {
@@ -216,56 +243,53 @@ const haversineDistance = (coords1, coords2, isMiles) => {
   var a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos(toRad(lat1)) *
-      Math.cos(toRad(lat2)) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
+    Math.cos(toRad(lat2)) *
+    Math.sin(dLon / 2) *
+    Math.sin(dLon / 2);
   var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   var d = R * c;
 
   if (isMiles) d /= 1.60934;
 
-  if(lon1 == null || lat1 == null || lon2 == null || lat2 == null) return null 
+  if (lon1 == null || lat1 == null || lon2 == null || lat2 == null) return null
   return d;
 };
 
 const getDateFromTimestamp = (timestamp) => {
   const date = new Date(timestamp);
   return {
-    date: `${date.getDate() < 10 ? `0${date.getDate()}` : date.getDate()}/${
-      date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1
-    }/${date.getFullYear()}`,
-    hour: `${
-      date.getHours() > 12
-        ? `${date.getHours() - 12}`
-        : `${date.getHours() < 10 ? `0${date.getHours()}` : date.getHours()}`
-    }:${date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes()}${
-      date.getHours() > 12 ? "pm" : "am"
-    }`,
+    date: `${date.getDate() < 10 ? `0${date.getDate()}` : date.getDate()}/${date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1
+      }/${date.getFullYear()}`,
+    hour: `${date.getHours() > 12
+      ? `${date.getHours() - 12}`
+      : `${date.getHours() < 10 ? `0${date.getHours()}` : date.getHours()}`
+      }:${date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes()}${date.getHours() > 12 ? "pm" : "am"
+      }`,
   };
 };
 
 
 const validateRequestToken = (token) => {
-  let tokenTimestamp = parseInt(token?.substring(token.indexOf(':')+1, token.length))
+  let tokenTimestamp = parseInt(token?.substring(token.indexOf(':') + 1, token.length))
   let tokenPattern = token?.substring(0, token.indexOf(':'));
-  
-  if(isUuid(tokenPattern) && tokenTimestamp > new Date().getTime() - 180000){
+
+  if (isUuid(tokenPattern) && tokenTimestamp > new Date().getTime() - 180000) {
     return true
   }
-  
+
   return false
 }
 
 
 const validateNotCode = (code, params) => new Promise((response, reject) => {
   NOTIFICATIONS_CODES.forEach((xcode) => {
-    if(xcode === code?.code) {
+    if (xcode === code?.code) {
       code.function(params)?.then((res) => {
         response(res)
       })
-      .catch((error) => {
-        reject(error)
-      })
+        .catch((error) => {
+          reject(error)
+        })
     }
   })
 })
@@ -277,7 +301,6 @@ module.exports = {
   sendNewNotificationTo,
   haversineDistance,
   getDateFromTimestamp,
-  sendNewNotificationToFCM,
   validateRequestToken,
   validateNotCode
 };
