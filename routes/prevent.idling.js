@@ -6,8 +6,8 @@ const { getDateFromTimestamp } = require("../utils/utilsFunctions");
 const router = express.Router();
 
 router.get('/prevent-server-idling', async (req, res) => {
-  placeOrdersRouting();
-  cancelExpiredOrders();
+  // placeOrdersRouting();
+  // cancelExpiredOrders();
   res.json({
     response: "preventing-server-idling-in-time-> " + getDateFromTimestamp(new Date().getTime()).date + '-' + getDateFromTimestamp(new Date().getTime()).hour,
   })
