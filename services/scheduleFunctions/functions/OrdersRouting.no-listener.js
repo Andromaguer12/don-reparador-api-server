@@ -30,15 +30,15 @@ const placeOrdersRouting = () => {
 
               if (user.data().position.includes(doc.data().category) && distancesComparations !== 0 && distancesComparations <= 7000) {
                 userDataRef
-                  .doc(user.id)
-                  .collection("UserNotifications")
-                  .where("validations", "==", `newOrder:${doc.id}`)
-                  .get()
-                  .then(async (docs) => {
-                    let times = 0;
-                    docs.forEach(() => times++);
-                    if (times === 0) {
-                      if (doc.data().owner != user.id) {
+                .doc(user.id)
+                .collection("UserNotifications")
+                .where("validations", "==", `newOrder:${doc.id}`)
+                .get()
+                .then(async (docs) => {
+                  let times = 0;
+                  docs.forEach(() => times++);
+                  if (times === 0) {
+                    if (doc.data().owner != user.id) {
                         await axios.post(
                           process.env.CURRENT_DOMAIN +
                           "/api/send-notification/send",

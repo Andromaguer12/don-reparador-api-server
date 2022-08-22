@@ -4,7 +4,7 @@ const placeOrdersRouting = require("./functions/OrdersRouting.no-listener");
 
 const functionsList = [
     () => schedule.scheduleJob("*/30 * * * *", cancelExpiredOrders),
-    () => schedule.scheduleJob("*/1 * * * *", placeOrdersRouting)
+    // () => schedule.scheduleJob("*/1 * * * *", placeOrdersRouting)
 ]
 
 const scheduleFunctions = () => {

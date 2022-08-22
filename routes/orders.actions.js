@@ -4,6 +4,28 @@ const { validateRequestToken, getDateFromTimestamp } = require("../utils/utilsFu
 const { isUuid } = require('uuidv4');
 const router = express.Router();
 const { userDataRef } = require("../services/Firebase/Firebase.firestore");
+const placeOrdersRouting = require("../services/scheduleFunctions/functions/OrdersRouting.no-listener");
+
+router.post('/placing-order', async (req, res) => {
+  console.log('placing-orders')
+  try {
+    placeOrdersRouting();
+    setTimeout(() => {
+      res.json({
+        status: 200,
+        message: 'notification-function-was-triggered'
+      })
+    }, 500);
+  } catch (error) {
+    setTimeout(() => {
+      res.json({
+        status: 400,
+        message: null,
+        error
+      })
+    }, 500);
+  }
+})
 
 router.post('/mark-as-cancelled/:id', async (req, res) => {
   const { token } = req.body;

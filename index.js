@@ -61,7 +61,7 @@ const executeServer = async () => {
   connectingDB();
 
   // using Listeners
-  require("./services/Listeners/listeners.index")();
+  // require("./services/Listeners/listeners.index")();
 
   // using schedule functions
   require("./services/scheduleFunctions/schedule.functions")();

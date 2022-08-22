@@ -1,5 +1,5 @@
 const { default: axios } = require("axios");
-const { getDateFromTimestamp, haversineDistance } = require("../../../utils/utilsFunctions");
+const { haversineDistance } = require("../../../utils/utilsFunctions");
 const { ordersRef, userDataRef } = require("../../Firebase/Firebase.firestore");
 
 const placeOrdersRoutingListener = () => {
