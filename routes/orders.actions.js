@@ -1,10 +1,10 @@
 const e = require("express");
 const express = require("express");
-const { validateRequestToken, getDateFromTimestamp } = require("../utils/utilsFunctions");
-const { isUuid } = require('uuidv4');
+const { validateRequestToken } = require("../utils/utilsFunctions");
 const router = express.Router();
 const { userDataRef } = require("../services/Firebase/Firebase.firestore");
 const placeOrdersRouting = require("../services/scheduleFunctions/functions/OrdersRouting.no-listener");
+const { sendUsersNotificationFunction } = require("../services/scheduleFunctions/functions/updating.notifications");
 
 router.post('/placing-order', async (req, res) => {
   console.log('placing-orders')
@@ -14,6 +14,28 @@ router.post('/placing-order', async (req, res) => {
       res.json({
         status: 200,
         message: 'notification-function-was-triggered'
+      })
+    }, 500);
+  } catch (error) {
+    setTimeout(() => {
+      res.json({
+        status: 400,
+        message: null,
+        error
+      })
+    }, 500);
+  }
+})
+
+router.post('/placing-notifications', async (req, res) => {
+  console.log('placing-notifications')
+  const {type} = req.body
+  try {
+    sendUsersNotificationFunction(type);
+    setTimeout(() => {
+      res.json({
+        status: 200,
+        message: 'users-notification-function-was-triggered'
       })
     }, 500);
   } catch (error) {
