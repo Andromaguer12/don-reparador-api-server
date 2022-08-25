@@ -56,6 +56,7 @@ const executeServer = async () => {
   app.use("/api/request-balances", require("./routes/user.balances"));
   app.use("/api/orders-actions", require("./routes/orders.actions"));
   app.use("/api/server", require("./routes/prevent.idling"));
+  app.use("/api/google-play", require("./routes/google-play.purchase"));
 
   // DATABASE
   connectingDB();
